@@ -3,12 +3,12 @@ export interface DashBoardProps {
 }
 
 export interface URLProps {
+  id: string;
+  userId: string;
   title: string;
   shortURL: string;
   longURL: string;
-  numberOfLinks: number;
   TotalClicks: number;
-  TotalForAllLinks?: number;
   createdAt: Date;
 }
 
@@ -41,4 +41,9 @@ export interface SignupForm {
 export interface URLFormProps {
   onSubmit: (newURL: Partial<URLProps>) => void;
   onClose: () => void;
+}
+
+export interface DashBoardAnalyticsProps {
+  TotalClicks: number;
+  numberOfLinks: number;
 }

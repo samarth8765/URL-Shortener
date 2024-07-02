@@ -2,14 +2,54 @@ import { formatDate } from "../utils/date";
 import { firstIndexUppercase } from "../utils/firstIndexUppercase";
 import { URLIcon } from "../icons/url";
 import QRCode from "qrcode.react";
-
+import Swal from "sweetalert2";
 import { URLProps } from "../utils/interfaces";
 import { CopyIcon } from "../icons/copy";
 import { DeleteIcon } from "../icons/delete";
 import { DownloadIcon } from "../icons/download";
+import { useRecoilState } from "recoil";
+import { urlAtom } from "../store/atom";
+import axios from "axios";
 
 export const URLs: React.FC<URLProps> = (props) => {
   const { title, longURL, shortURL, createdAt } = props;
+
+  const [urls, setUrls] = useRecoilState(urlAtom);
+
+  const handleDelete = async () => {
+    try {
+      console.log("Start");
+      console.log(urls);
+      const token = localStorage.getItem("jwtToken");
+      await axios.delete(`http://localhost:8080/api/url/${shortURL}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Middle");
+      console.log(urls);
+      const filterUrls = urls.filter((url) => url.shortURL !== shortURL);
+      console.log("End");
+      console.log(filterUrls);
+      setUrls(filterUrls);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const handleCopy = () => {
+    navigator.clipboard.writeText("http://localhost:8080/" + shortURL);
+    Swal.fire({
+      toast: true,
+      position: "bottom-right",
+      icon: "success",
+      title: "Copied to clipboard!",
+      showConfirmButton: false,
+      timer: 1000,
+    });
+  };
+
+  const handleDownload = () => {};
+
   return (
     <div className="flex w-screen">
       <div className="flex mt-10 w-full ml-16 border mr-16 rounded border-black p-3">
@@ -21,9 +61,9 @@ export const URLs: React.FC<URLProps> = (props) => {
           <a
             className="text-blue-400 font-bold"
             target="_blank"
-            href={shortURL}
+            href={"http://localhost:8080/" + shortURL}
           >
-            {shortURL}{" "}
+            {"http://localhost:8080/" + shortURL}{" "}
           </a>
           <div className="flex items-center">
             <div>{<URLIcon />}</div>
@@ -33,16 +73,24 @@ export const URLs: React.FC<URLProps> = (props) => {
                 target="_blank"
                 href={longURL}
               >
-                {longURL}{" "}
+                {longURL.length >= 15 ? longURL.slice(0, 25) + "..." : longURL}{" "}
               </a>
             </div>
           </div>
-          <p>{formatDate(createdAt)}</p>
+          <div>
+            <p>{formatDate(new Date(createdAt))}</p>
+          </div>
         </div>
         <div className="flex w-full flex-row-reverse mr-4">
-          <CopyIcon />
-          <DeleteIcon />
-          <DownloadIcon />
+          <button onClick={handleCopy}>
+            <CopyIcon />
+          </button>
+          <button onClick={handleDelete}>
+            <DeleteIcon />
+          </button>
+          <button onClick={handleDownload}>
+            <DownloadIcon />
+          </button>
         </div>
       </div>
       <div></div>

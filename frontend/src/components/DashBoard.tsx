@@ -2,25 +2,40 @@ import React, { useEffect, useState } from "react";
 import { LogoutButton } from "./Logout";
 import axios from "axios";
 import { URLs } from "./URLs";
-import { DashBoardProps, URLProps } from "../utils/interfaces";
+import {
+  DashBoardAnalyticsProps,
+  DashBoardProps,
+  URLProps,
+} from "../utils/interfaces";
 import { FilterIcon } from "../icons/filter";
 import { URLForm } from "./URLForm";
+import { useRecoilState } from "recoil";
+import { urlAtom } from "../store/atom";
 
 export const DashBoard: React.FC<DashBoardProps> = (props) => {
   const { username } = props;
   const [showForm, setShowForm] = useState<boolean>(false);
-  const [urls, setUrls] = useState<URLProps[]>([]);
+  const [dashBoardAnalytics, setDashBoardAnalytics] =
+    useState<DashBoardAnalyticsProps>({
+      TotalClicks: 0,
+      numberOfLinks: 0,
+    });
+  const [urls, setUrls] = useRecoilState(urlAtom);
 
   useEffect(() => {
     const fetchUrls = async () => {
       try {
         const token = localStorage.getItem("jwtToken");
-        const response = await axios.get("http://localhost:8080/api/urls", {
+        const response = await axios.get("http://localhost:8080/api/url", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setUrls(response.data);
+        setDashBoardAnalytics({
+          TotalClicks: response.data.totalClicks,
+          numberOfLinks: response.data.numberOfLinks,
+        });
+        setUrls([...response.data.urls]);
       } catch (err: any) {
         console.log(err);
       }
@@ -30,7 +45,6 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
   }, []);
 
   const handleSubmit = async (newURL: Partial<URLProps>) => {
-    console.log(newURL);
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await axios.post(
@@ -43,19 +57,10 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
         }
       );
 
-      setUrls([...urls, response.data]);
+      setUrls((prevUrls) => [...prevUrls, response.data]);
     } catch (err: any) {
       console.log(err);
     }
-  };
-
-  const urlDummyData: URLProps = {
-    TotalClicks: 1,
-    createdAt: new Date(),
-    longURL: "https:youtube.com",
-    shortURL: "http://localhost:8080/abcd",
-    numberOfLinks: 50,
-    title: "youtube title",
   };
 
   return (
@@ -74,12 +79,12 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
       <div className="flex">
         <div className="w-1/2 flex justify-center p-5 border ml-16 border-black rounded">
           <h1>Links Created &nbsp;: &nbsp;</h1>
-          <p>{urlDummyData.numberOfLinks}</p>
+          <p>{dashBoardAnalytics.numberOfLinks}</p>
         </div>
 
         <div className="w-1/2 flex justify-center p-5 border ml-10 mr-16 border-black rounded">
           <h1>Total Clicks &nbsp;: &nbsp;</h1>
-          <p>{urlDummyData.TotalClicks}</p>
+          <p>{dashBoardAnalytics.TotalClicks}</p>
         </div>
       </div>
 
@@ -105,7 +110,9 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
       </div>
 
       <div>
-        <URLs {...urlDummyData} />
+        {urls.map((url: URLProps) => {
+          return <URLs {...url} key={url.id} />;
+        })}
       </div>
 
       {showForm && (

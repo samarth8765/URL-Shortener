@@ -14,21 +14,22 @@ datasource db {
 }
 
 model User {
-  id         String @id @default(uuid())
-  username   String @unique
-  email      String @unique
-  TotalLinks Int    @default(0)
-  password   String
-  URL        Url[]
+  id            String   @id @default(uuid())
+  username      String   @unique
+  email         String   @unique
+  password      String
+  URL           Url[]
+  createdAt     DateTime @default(now())
+  numberOfLinks Int      @default(0)
 }
 
 model Url {
-  id            String @id @default(uuid())
-  title         String
-  shortURL      String
-  longURL       String
-  numberOfLinks Int    @default(0)
-  TotalClicks   Int    @default(0)
-  User          User   @relation(fields: [userId], references: [id])
-  userId        String
+  id          String   @id @default(uuid())
+  title       String
+  shortURL    String   @unique
+  longURL     String
+  TotalClicks Int      @default(0)
+  User        User     @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime @default(now())
 }

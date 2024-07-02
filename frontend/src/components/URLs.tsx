@@ -10,27 +10,24 @@ import { DownloadIcon } from "../icons/download";
 import { useRecoilState } from "recoil";
 import { urlAtom } from "../store/atom";
 import axios from "axios";
+import { createRef, useRef } from "react";
 
 export const URLs: React.FC<URLProps> = (props) => {
   const { title, longURL, shortURL, createdAt } = props;
-
   const [urls, setUrls] = useRecoilState(urlAtom);
+  let qrRef = createRef();
 
   const handleDelete = async () => {
     try {
-      console.log("Start");
-      console.log(urls);
       const token = localStorage.getItem("jwtToken");
       await axios.delete(`http://localhost:8080/api/url/${shortURL}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Middle");
-      console.log(urls);
+
       const filterUrls = urls.filter((url) => url.shortURL !== shortURL);
-      console.log("End");
-      console.log(filterUrls);
+
       setUrls(filterUrls);
     } catch (err) {
       console.log(err);
@@ -48,13 +45,29 @@ export const URLs: React.FC<URLProps> = (props) => {
     });
   };
 
-  const handleDownload = () => {};
+  const handleDownload = () => {
+    const canvas = document.getElementById(shortURL) as HTMLCanvasElement;
+    const pngUrl = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${shortURL}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
 
   return (
     <div className="flex w-screen">
       <div className="flex mt-10 w-full ml-16 border mr-16 rounded border-black p-3">
         <div>
-          <QRCode value={longURL} size={120} className="mr-4" />
+          <QRCode
+            value={`http://localhost:8080/${shortURL}`}
+            size={150}
+            className="mr-4"
+            id={shortURL}
+          />
         </div>
         <div className="flex flex-col justify-evenly">
           <p className="text-2xl font-bold">{firstIndexUppercase(title)}</p>

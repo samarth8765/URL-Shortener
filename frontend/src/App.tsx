@@ -6,6 +6,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashBoard } from "./components/DashBoard";
 import { useRecoilValue } from "recoil";
 import { isAuthenticatedAtom } from "./store/atom";
+import { LinkPage } from "./components/LinkPage";
+import { PageNotFound } from "./components/PageNotFound";
 
 function App() {
   const isAuthenticated = useRecoilValue(isAuthenticatedAtom);
@@ -34,6 +36,8 @@ function App() {
             />
           }
         />
+        <Route path="/link/:shortURL" element={<LinkPage />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
   );

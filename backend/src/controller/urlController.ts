@@ -5,6 +5,31 @@ import { generateUniqueShortID } from "../utils/shortId";
 
 const DB = DBClient.getInstance();
 
+export const getUrl = async (req: Request, res: Response) => {
+  try {
+    //@ts-ignore
+    const { id } = req.user;
+    const { url } = req.params;
+
+    const findUrl = await DB.url.findFirst({
+      where: {
+        userId: id,
+        shortURL: url,
+      },
+    });
+
+    if (!findUrl) {
+      return res.status(404).json({ error: "URL not found" });
+    }
+
+    return res.status(200).json(findUrl);
+  } catch (err) {
+    return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
 export const getAllUrls = async (req: Request, res: Response) => {
   try {
     //@ts-ignore

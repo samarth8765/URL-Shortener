@@ -10,12 +10,12 @@ import { DownloadIcon } from "../icons/download";
 import { useRecoilState } from "recoil";
 import { urlAtom } from "../store/atom";
 import axios from "axios";
-import { createRef, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const URLs: React.FC<URLProps> = (props) => {
   const { title, longURL, shortURL, createdAt } = props;
   const [urls, setUrls] = useRecoilState(urlAtom);
-  let qrRef = createRef();
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     try {
@@ -58,6 +58,10 @@ export const URLs: React.FC<URLProps> = (props) => {
     document.body.removeChild(downloadLink);
   };
 
+  const handleLink = () => {
+    navigate(`/link/${shortURL}`);
+  };
+
   return (
     <div className="flex w-screen">
       <div className="flex mt-10 w-full ml-16 border mr-16 rounded border-black p-3">
@@ -70,7 +74,9 @@ export const URLs: React.FC<URLProps> = (props) => {
           />
         </div>
         <div className="flex flex-col justify-evenly">
-          <p className="text-2xl font-bold">{firstIndexUppercase(title)}</p>
+          <button className="flex" onClick={handleLink}>
+            <p className="text-2xl font-bold">{firstIndexUppercase(title)}</p>
+          </button>
           <a
             className="text-blue-400 font-bold"
             target="_blank"

@@ -9,7 +9,7 @@ export interface URLProps {
   shortURL: string;
   longURL: string;
   TotalClicks: number;
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 export interface InputElementProps {

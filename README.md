@@ -2,18 +2,26 @@
 
 ## Running the Application
 
-- Go to Frontend and run the following command
+### Step 1
 
-  ```js
-  cd frontend
-  pnpm install
-  pnpm run dev
-  ```
+- Navigate to the Frontend directory and execute the following commands:
 
-- Go to Backend and run the following command
+```bash
+cd frontend
+pnpm install
+pnpm run dev
+```
 
-  ```js
-  cd backend
-  pnpm install
-  pnpm run dev
-  ```
+### Step 2
+
+- Navigate to the Backend directory and execute the following commands:
+
+```bash
+cd backend
+pnpm install
+pnpm run dev
+```
+
+### Step 3
+
+- PostgreSQL database is used. You need to update the .env file located in the backend directory with your PostgreSQL database URL.

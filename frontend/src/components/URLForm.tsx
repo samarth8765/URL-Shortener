@@ -21,11 +21,11 @@ export const URLForm: React.FC<URLFormProps> = ({ onSubmit, onClose }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewURL({ ...newURL, [name]: value });
+    setNewURL({ ...newURL, [name]: value.trim() });
   };
 
   const handleShortURLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
+    const input = e.target.value.trim();
     e.target.value = prefix + input.slice(prefix.length);
     setNewURL({ ...newURL, shortURL: e.target.value });
   };

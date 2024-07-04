@@ -47,9 +47,6 @@ export const Login = (): JSX.Element => {
       localStorage.setItem("jwtToken", token);
       setIsAuthenticated(true);
       navigate("/dashboard");
-
-      console.log(JSON.stringify(response.data));
-
       setLoading(false);
     } catch (error) {
       setLoading(false);

@@ -10,3 +10,8 @@ export const urlAtom = atom<URLProps[]>({
   default: [],
   key: "urlAtom",
 });
+
+export const URLServerError = atom<string>({
+  default: "",
+  key: "URLServerError",
+});

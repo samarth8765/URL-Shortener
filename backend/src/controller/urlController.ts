@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { Request, Response } from "express";
 import { DBClient } from "../model/prisma";
 import { generateUniqueShortID } from "../utils/shortId";
@@ -84,7 +84,7 @@ export const createNewURL = async (req: Request, res: Response) => {
     if (!shortURL) {
       shortURL = await generateUniqueShortID();
     }
-    console.log(shortURL);
+
     const generateURL = await DB.url.create({
       data: {
         userId: id,
@@ -109,6 +109,13 @@ export const createNewURL = async (req: Request, res: Response) => {
     return res.status(201).json(generateURL);
   } catch (err) {
     console.log(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2002") {
+        return res.status(409).json({
+          error: "Short url already exists",
+        });
+      }
+    }
     return res.status(500).json({
       error: "Internal server error",
     });

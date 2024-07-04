@@ -11,7 +11,6 @@ import { PageNotFound } from "./components/PageNotFound";
 
 function App() {
   const isAuthenticated = useRecoilValue(isAuthenticatedAtom);
-  console.log(isAuthenticated);
   return (
     <BrowserRouter>
       <Routes>

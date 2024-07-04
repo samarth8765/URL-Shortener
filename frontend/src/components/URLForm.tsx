@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { URLFormProps, URLProps } from "../utils/interfaces";
+import { useRecoilValue } from "recoil";
+import { URLServerError } from "../store/atom";
 
 export const URLForm: React.FC<URLFormProps> = ({ onSubmit, onClose }) => {
   const prefix = "http://localhost:8080/";
@@ -10,6 +12,8 @@ export const URLForm: React.FC<URLFormProps> = ({ onSubmit, onClose }) => {
     shortURL: prefix,
     title: "",
   });
+
+  const serverError = useRecoilValue(URLServerError);
 
   const shortURLRef = useRef<HTMLInputElement>(null);
 
@@ -55,7 +59,6 @@ export const URLForm: React.FC<URLFormProps> = ({ onSubmit, onClose }) => {
     };
 
     onSubmit(updatedURL);
-    onClose();
   };
 
   return (
@@ -102,6 +105,8 @@ export const URLForm: React.FC<URLFormProps> = ({ onSubmit, onClose }) => {
               placeholder="Short URL"
             />
           </div>
+
+          <div>{serverError}</div>
 
           <button
             type="submit"

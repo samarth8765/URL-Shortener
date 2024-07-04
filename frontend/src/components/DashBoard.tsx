@@ -9,8 +9,8 @@ import {
 } from "../utils/interfaces";
 import { FilterIcon } from "../icons/filter";
 import { URLForm } from "./URLForm";
-import { useRecoilState } from "recoil";
-import { urlAtom } from "../store/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { urlAtom, URLServerError } from "../store/atom";
 
 export const DashBoard: React.FC<DashBoardProps> = (props) => {
   const { username } = props;
@@ -23,6 +23,7 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
   const [urls, setUrls] = useRecoilState(urlAtom);
   const [originalUrls, setOriginalUrls] = useState<URLProps[]>([]);
   const [noResultFound, setNoResultFound] = useState<boolean>(false);
+  const setServerError = useSetRecoilState(URLServerError);
 
   useEffect(() => {
     const fetchUrls = async () => {
@@ -49,11 +50,15 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
 
   const filterComponents = (e: ChangeEvent<HTMLInputElement>) => {
     // filtering by title
-
     const inputText = e.target.value.toLowerCase();
     const filterLinks = originalUrls.filter((url) => {
       return url.title.toLowerCase().includes(inputText);
     });
+
+    if (originalUrls.length === 0) {
+      setNoResultFound(false);
+      return;
+    }
 
     if (filterLinks.length === 0) {
       setNoResultFound(true);
@@ -77,10 +82,12 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
         }
       );
 
+      setServerError("");
       setOriginalUrls((prevUrls) => [...prevUrls, response.data]);
       setUrls((prevUrls) => [...prevUrls, response.data]);
+      setShowForm(false);
     } catch (err: any) {
-      console.log(err);
+      setServerError(err.response.data.error);
     }
   };
 
@@ -143,8 +150,15 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
           )}
         </div>
       </div>
+
       {showForm && (
-        <URLForm onSubmit={handleSubmit} onClose={() => setShowForm(false)} />
+        <URLForm
+          onSubmit={handleSubmit}
+          onClose={() => {
+            setShowForm(false);
+            setServerError("");
+          }}
+        />
       )}
     </div>
   );

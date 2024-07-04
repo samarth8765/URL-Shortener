@@ -20,6 +20,7 @@ export const Signup = () => {
   const [error, setError] = useState<SignUpFormErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string>("");
+
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +50,7 @@ export const Signup = () => {
       }
 
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
 
       if (error instanceof ZodError) {
@@ -107,6 +108,7 @@ export const Signup = () => {
               onChange={handleChange}
               error={error.confirmPassword}
             />
+
             <div className="flex justify-center">
               <button
                 type="submit"
@@ -116,7 +118,7 @@ export const Signup = () => {
                 {loading ? "Submitting" : "Signup"}
               </button>
             </div>
-            <p className="text-red-700 font-bold">{serverError}</p>
+            <p className="text-red-700 font-bold text-center">{serverError}</p>
           </form>
         </div>
       </div>

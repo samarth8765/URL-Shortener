@@ -19,7 +19,7 @@ export const registerUser = async (req: Request, res: Response) => {
   });
 
   if (userExists) {
-    return res.status(400).json({
+    return res.status(409).json({
       error: "Email already exists",
     });
   }
@@ -43,7 +43,7 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ error: "Email or Password not found" });
+    return res.status(404).json({ error: "Email or Password not found" });
   }
 
   const user = await DB.user.findFirst({
@@ -58,6 +58,8 @@ export const loginUser = async (req: Request, res: Response) => {
       token: generateToken(user.id),
     });
   } else {
-    res.status(401).json("Invalid email or password");
+    res.status(401).json({
+      error: "Invalid email or password",
+    });
   }
 };

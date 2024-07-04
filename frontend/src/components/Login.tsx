@@ -19,6 +19,7 @@ export const Login = (): JSX.Element => {
 
   const [loginError, setLoginError] = useState<LoginFormError>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [loginServerError, setLoginServerError] = useState<string>("");
 
   const navigate = useNavigate();
   const setIsAuthenticated = useSetRecoilState(isAuthenticatedAtom);
@@ -37,19 +38,19 @@ export const Login = (): JSX.Element => {
       loginSchema.parse(loginForm);
       setLoginError({});
       setLoading(true);
-
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
-        loginForm
-      );
-
-      const token = response.data.token;
-      localStorage.setItem("jwtToken", token);
-      setIsAuthenticated(true);
-      navigate("/dashboard");
-      setLoading(false);
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/api/auth/login",
+          loginForm
+        );
+        const token = response.data.token;
+        localStorage.setItem("jwtToken", token);
+        setIsAuthenticated(true);
+        navigate("/dashboard");
+      } catch (err: any) {
+        setLoginServerError(err.response.data.error);
+      }
     } catch (error) {
-      setLoading(false);
       if (error instanceof ZodError) {
         const fieldErrors: LoginFormError = {};
         error.errors.forEach((err) => {
@@ -59,6 +60,8 @@ export const Login = (): JSX.Element => {
         });
         setLoginError(fieldErrors);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,6 +99,9 @@ export const Login = (): JSX.Element => {
               </button>
             </div>
           </form>
+          <div className="text-red-500 text-center font-bold">
+            {loginServerError}
+          </div>
         </div>
       </div>
     </div>

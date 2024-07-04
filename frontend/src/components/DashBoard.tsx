@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { LogoutButton } from "./Logout";
 import axios from "axios";
 import { URLs } from "./URLs";
@@ -21,6 +21,8 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
       numberOfLinks: 0,
     });
   const [urls, setUrls] = useRecoilState(urlAtom);
+  const [originalUrls, setOriginalUrls] = useState<URLProps[]>([]);
+  const [noResultFound, setNoResultFound] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUrls = async () => {
@@ -35,7 +37,8 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
           TotalClicks: response.data.totalClicks,
           numberOfLinks: response.data.numberOfLinks,
         });
-        setUrls([...response.data.urls]);
+        setUrls(response.data.urls);
+        setOriginalUrls(response.data.urls);
       } catch (err: any) {
         console.log(err);
       }
@@ -43,6 +46,23 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
 
     fetchUrls();
   }, []);
+
+  const filterComponents = (e: ChangeEvent<HTMLInputElement>) => {
+    // filtering by title
+
+    const inputText = e.target.value.toLowerCase();
+    const filterLinks = originalUrls.filter((url) => {
+      return url.title.toLowerCase().includes(inputText);
+    });
+
+    if (filterLinks.length === 0) {
+      setNoResultFound(true);
+    } else {
+      setNoResultFound(false);
+    }
+
+    setUrls(inputText.length !== 0 ? filterLinks : originalUrls);
+  };
 
   const handleSubmit = async (newURL: Partial<URLProps>) => {
     try {
@@ -57,6 +77,7 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
         }
       );
 
+      setOriginalUrls((prevUrls) => [...prevUrls, response.data]);
       setUrls((prevUrls) => [...prevUrls, response.data]);
     } catch (err: any) {
       console.log(err);
@@ -103,18 +124,25 @@ export const DashBoard: React.FC<DashBoardProps> = (props) => {
           type="text"
           placeholder="Filter Links... "
           className=" ml-6 p-2 border-none focus:outline-none w-full"
+          onChange={filterComponents}
         />
         <div className="mr-16">
           <FilterIcon />
         </div>
       </div>
-
       <div>
-        {urls.map((url: URLProps) => {
-          return <URLs {...url} key={url.id} />;
-        })}
+        <div>
+          {noResultFound ? (
+            <div className="ml-16 mt-10 text-5xl font-bold">
+              Oops, No Result Found
+            </div>
+          ) : (
+            urls.map((url: URLProps) => {
+              return <URLs {...url} key={url.id} />;
+            })
+          )}
+        </div>
       </div>
-
       {showForm && (
         <URLForm onSubmit={handleSubmit} onClose={() => setShowForm(false)} />
       )}
